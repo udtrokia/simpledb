@@ -1,0 +1,77 @@
+/*
+* mongoose 
+**/
+
+//plugins
+const assert = require('assert')
+const mongoose = require('mongoose')
+
+// Connection 
+mongoose.connect('mongodb://localhost/school',{
+    useMongoClient: true
+});
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function() {
+    console.log('connect at "mongodb://localhost/school"')
+    // we're connected!                                                                                  
+});
+
+
+//Options
+mongoose.Promise = global.Promise;
+mongoose.set('debug',true)
+
+//Schema
+var studentSchema = mongoose.Schema({
+    name: String,
+    tel:String,
+    sex:String,
+    age:String,
+    _class:String,
+    region:String,
+    start:String,
+    end:String,
+    to:String,
+    money:String,
+    avatar:String,
+    apply:Boolean,
+    totalAmount:String,
+    applyAccount:String,
+    expired:Boolean
+},{
+    versionKey: false
+})
+var teacherSchema = mongoose.Schema({
+    name: String,
+    tel:String,
+    sex:String,
+    age:String,
+    avatar:String,
+    password: String,
+    region:Array,
+    dealTeacher:Boolean,
+    dealManager:Boolean,
+    dealRenew:Boolean    
+})
+
+var renewSchema = mongoose.Schema({
+    id:String,
+    name:String,
+    record:Array
+})
+
+
+//Model
+var Student = mongoose.model('Student',studentSchema)
+var Teacher = mongoose.model('Teacher',teacherSchema)
+var Renew = mongoose.model('Renew',renewSchema)
+//Entity
+
+
+
+module.exports = {
+    Renew,
+    Student,
+    Teacher
+}

@@ -1,0 +1,96 @@
+//detail
+
+import React, { Component } from 'react';
+import {
+    Container,
+    Form,
+    Input,
+    Col,
+    ButtonGroup,
+    Button,
+    Card,
+    CardHeader,
+    CardBody,
+    CardFooter,
+    FormGroup,
+    Label
+} from 'reactstrap'
+
+//history
+import createHistory from 'history/createBrowserHistory'
+const history = createHistory()
+
+//jquery
+const $ = require('jquery')
+export default class Detail extends Component {
+    constructor(props){
+	super(props)
+	this.state={
+	    tel:this.props.location.state.tel
+	}
+    }	
+    componentWillMount(){
+
+    }
+    apply=()=>{
+        let data = new FormData($('#form')[0])
+	data.append('apply',true)
+        $.ajax({
+            type:"POST",
+            url:'http://localhost:3600/simpledb/db?type=update&col=student',
+            data:data,
+            dataType:'JSON',
+            processData:false,
+            contentType:false,
+            success:()=>{
+                alert('申请成功，请与财务人员进行联系！')
+		history.goBack()
+            }
+        })
+    }
+    render() {
+	return (
+		<div>
+		<Container className='text-center pb-3 mt-5' >
+		<Card className="mt-2">
+		<CardHeader>续费申请</CardHeader>
+		<hr/>
+		<CardBody>
+		<Form
+	    id="form"
+	    encType='multipart/form-data'
+	    method="post"
+		>		
+                <FormGroup row>
+                <Label sm={2}>电话号码</Label>
+                <Col sm={10} className="text-left">
+                <Input  name="tel" defaultValue={this.state.tel} disabled={true}/>	
+                </Col>
+                </FormGroup>
+                <FormGroup row>
+                <Label sm={2}>缴费金额</Label>
+                <Col sm={10}>
+                <Input  name="money" placeholder="单位:元"/>
+                </Col>
+                </FormGroup>
+                <FormGroup row>
+                <Label sm={2}>到期时间</Label>
+                <Col sm={10}>
+                <Input  name="to" placeholder="如:2018/1/1" />
+                </Col>
+                </FormGroup>				
+		</Form >	    
+		</CardBody>
+		<CardFooter className="text-right">
+		<ButtonGroup>
+		<Button  onClick={this.apply}>申请</Button>		
+		<Button onClick={history.goBack}>完成</Button>
+		</ButtonGroup>
+		</CardFooter>
+		</Card>
+		</Container>		
+		</div>
+		
+	);
+    }
+}

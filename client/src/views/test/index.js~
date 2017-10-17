@@ -1,0 +1,77 @@
+
+import React, { Component } from 'react';
+import {
+    Jumbotron,
+    FormGroup,
+    Label,
+    Form,
+    Input,
+    Col,
+    Button,
+    FormText
+} from 'reactstrap'
+
+//history
+import createHistory from 'history/createBrowserHistory'
+const history = createHistory()
+
+//jquery
+const $ = require('jquery')
+
+class Insert extends Component {
+    constructor(props){
+	super(props)
+	this.state={
+	    id:null,
+	    name:null,
+	    age:null,
+	    sex:'male',
+	    tel:null,
+	    hobby:null
+	}
+    }
+    componentWillMount=()=>{
+	$.post('http://localhost:3600/db?type=id',{},(data)=>{
+	    //make up id
+	    let id = data.id.toString()
+	    let len= Number(id.length)
+	    id = "0".repeat(4-len)+id
+
+	    //set state
+	    this.setState({id:id})
+	    console.log('this.state.id: '+this.state.id)
+	})
+    }
+    handleInput=(event)=>{
+	let target = event.target
+	this.setState({[target.name]:target.value},()=>{
+	console.log(this.state)
+	})
+
+    }
+    handleSubmit=(event)=>{
+	$.post('http://localhost:3600/db?type=save',()=>{
+	    return false
+	}).then(history.push('find'))
+
+    }
+    render() {
+	return (
+		<Jumbotron >
+		<form
+	    action="http://localhost:3600/upload"
+	    method="post"
+	    enctype="multipart/form-data"
+		>
+		<input type="file" name="avatar"/>
+		<button type="submit">submit</button>
+	    </form>
+		</Jumbotron>
+		
+	);
+    }
+}
+
+
+export default Insert;
+

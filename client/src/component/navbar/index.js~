@@ -1,0 +1,85 @@
+import React ,{Component}from 'react';
+import {
+    Collapse,
+    Navbar,
+    NavbarToggler,
+    NavbarBrand,
+    Nav,
+    NavDropdown,
+    DropdownItem,
+    DropdownToggle,
+    DropdownMenu,
+} from 'reactstrap';
+
+import createHistory from 'history/createBrowserHistory'
+const history = createHistory()
+
+export default class NavBar extends Component {
+    constructor(props) {
+	super(props);
+	this.state = {
+	    isOpen: false,
+	    dropdownOpen: false
+	};
+    }
+    toggle=()=>{
+	this.setState({
+	    dropdownOpen: !this.state.dropdownOpen
+	});
+    }
+    handleLogout=()=>{
+	new Promise(()=>sessionStorage.removeItem('tel')).then(
+	    history.push('/')
+	).then(history.go(0))
+	
+    }
+    backIndex=()=>{
+	if(sessionStorage.getItem('tel')){
+	    history.push('/home')
+	    history.go(0)
+	}else{
+	    alert('请先登录')
+	}
+    }
+    logout=()=>{
+	if(sessionStorage.getItem('tel')){
+	    return (
+		    <DropdownItem
+		onClick={this.handleLogout}
+		    >退出登录</DropdownItem>
+	    )
+	}
+    }
+    navbar=()=>{
+	if(sessionStorage.getItem('tel')){
+	    return '/home'
+	}else{
+	    return '#'
+	}
+    }
+    render() {
+	return (
+		<div>
+		<Navbar color="faded" light expand>
+		<NavbarToggler />
+		<NavbarBrand href={this.navbar()}>99+1舞蹈学校</NavbarBrand>
+		<Collapse  navbar>
+		<Nav className="ml-auto" navbar>
+		<NavDropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}>
+		<DropdownToggle nav caret>
+		菜单
+            </DropdownToggle>
+		<DropdownMenu right>
+		<DropdownItem
+	    onClick={this.backIndex}
+		>返回主页</DropdownItem>
+		{this.logout()}
+		</DropdownMenu>
+		</NavDropdown>
+		</Nav>
+		</Collapse>
+		</Navbar>
+		</div>
+	);
+    }
+}

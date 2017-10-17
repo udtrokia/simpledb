@@ -1,0 +1,179 @@
+
+import React, { Component } from 'react';
+import {
+    FormGroup,
+    Container,
+    Label,
+    Form,
+    Input,
+    Row,
+    Col,
+    Button,
+    Card,
+    CardHeader,
+    CardText,
+    CardBody,
+    CardFooter
+} from 'reactstrap'
+
+//drop-zone
+import Dropzone from 'react-dropzone'
+
+//history
+import createHistory from 'history/createBrowserHistory'
+const history = createHistory()
+
+//jquery
+const $ = require('jquery')
+const sess = JSON.parse(sessionStorage.getItem('stat'))
+class Save extends Component {
+    constructor(props){
+	super(props)
+	this.state={
+	    id:'',
+	    avatar:null,
+	    preview:null,
+	    modal:false
+	}
+    }
+    componentWillMount=()=>{
+
+	$.post('http://localhost:3600/simpledb/db?type=id&col=student',{},(data)=>{
+	    //make up id
+	    let id = data.id.toString()
+	    let len= Number(id.length)
+	    id = "0".repeat(4-len)+id
+	    //set state
+	    this.setState({id:id})
+	    console.log('this.state.id: '+this.state.id)
+	})
+    }
+    handleSubmit=(event)=>{
+	event.preventDefault()
+	var form = new FormData($('#form')[0])
+	form.append('id',this.state.id)
+	form.append('avatar',this.state.avatar)
+	$.ajax({
+	    url:"http://localhost:3600/simpledb/db?type=save&col=student",
+	    type:'POST',
+	    data: form,
+	    cache: true,
+	    processData: false,
+	    contentType: false,
+	    dataType:'JSON'
+	}).then((res)=>{
+	    if(res.stat){
+		alert('添加成功')
+		history.replace('/studentList')
+		history.go()
+	    }else{
+		alert('添加失败')
+	    }
+	})
+    }
+
+    renderRegion=(lists)=>{
+        let doms=[]
+        if(lists!=null){
+            lists.forEach((value,key)=>{
+                doms.push(
+			<option key={key}>{value}</option>
+                )
+            })}
+        return 	<Input
+	type="select"
+	name="region"
+	id="region"
+	defaultValue={sess.region[0]}
+	onChange={this.handleInput}>{doms}</Input>
+
+    }
+    renderInput=(name,holder,defaultValue)=>{
+	return(
+		<FormGroup row>
+		<Label sm={2}>{holder}</Label>
+		<Col sm={10}>
+		<Input name={name} id={name} type="text" placeholder={holder} />
+		</Col>
+		</FormGroup>			    
+	)
+    }
+    onDrop=(avatar)=>{
+	this.setState({preview:avatar[0].preview})
+	this.setState({avatar:avatar[0]})
+    }
+//    toggle=()=>{
+//	this.setState({modal:!this.state.modal})
+//    }
+    render() {
+	return (
+		<div>
+		<Container className='text-center pb-3' >
+		<Card className="mt-2">
+		<CardHeader>学生信息</CardHeader>
+		<hr/>
+		<CardBody>
+		<Form
+	    id="form"
+	    encType='multipart/form-data'
+	    method="post"
+		>		
+		<Row>
+		<Col className="mt-4">
+		<Dropzone
+	    onDrop={this.onDrop}
+	    style={{display:'inline-block'}}
+	    >
+		<img
+	    style={{width:'8rem',height:'8rem'}}
+	    src={this.state.preview}
+	    alt=''
+		/>
+		</Dropzone>
+		<Col>
+		<Label className="mt-2">ID:{this.state.id}</Label>
+		</Col>
+		<CardText>
+		在这里上传学生头像
+	    </CardText>
+		</Col>
+		<Col>
+		{this.renderInput('name','姓名')}
+	    {this.renderInput('age','年龄')}
+		<FormGroup row>		
+		<Label sm={2}>性别</Label>
+		<Col sm={10}>
+		<Input type="select" name="sex"  defaultValue="男">
+		<option >男</option>
+		<option>女</option>		
+		</Input>
+		</Col>
+		</FormGroup>				
+		<FormGroup row>		
+		<Label sm={2}>校区</Label>
+		<Col sm={10}>
+		{this.renderRegion(sess.region)}
+		</Col>
+		</FormGroup>
+		{this.renderInput('height','身高')}
+	    {this.renderInput('weight','体重')}
+	    {this.renderInput('tel','电话')}
+		</Col>
+		</Row>	    
+		</Form >	    
+		</CardBody>
+		<CardFooter className="text-right">
+		<Button onClick={this.handleSubmit}>提交</Button>
+		</CardFooter>
+		</Card>
+		</Container>		
+		</div>
+		
+	);
+    }
+}
+
+
+export default Save;
+
+

@@ -1,0 +1,13 @@
+
+const crypto = require('crypto')
+const secret = 'kafka'
+const hash= (raw)=>{
+    return(crypto.createHmac('sha256',secret)
+	    .update(raw)
+	    .digest('hex')
+	  )
+}
+
+
+
+module.exports = hash

@@ -1,0 +1,23 @@
+
+const Teacher = require('../../db/base').Teacher
+var express = require('express')
+var router = express.Router();
+var multiparty = require('multiparty')
+
+router.post('/',function(req, res, next){
+    let form = new multiparty.Form()
+    form.parse(req,(err,fields,files)=>{
+	let teacher = new Teacher(fields)
+	Teacher.find({tel:fields.tel},(err,docs)=>{
+	    if(docs[0].password==fields.password){
+		req.session.tel=fields.tel
+		res.send({stat:true})
+	    }else{
+		res.send({stat:false})
+	    }
+	})
+
+    })
+})
+
+module.exports=router

@@ -1,0 +1,30 @@
+
+
+const mongoose = require('mongoose')
+var express = require('express');
+var router = express.Router();
+
+const Teacther = require('./base').Teacher
+const Student = require('./base').Student
+
+/* POST dataBase */
+
+router.post('/', function(req, res, next){
+    let type = req.query.type
+    if(type=='id'){
+	Student.count({},(err,count)=>{
+	    count = count+1
+	    res.send({id:count})
+	});
+    }else if(type=="save"){
+	let student = new Student(req.body)
+	student.save()
+    }else if(type=="find"){
+	Student.find({},(err,docs)=>{
+	    res.send(docs)
+	})
+    }
+});
+
+
+module.exports = router;

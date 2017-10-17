@@ -1,0 +1,207 @@
+//detail
+
+import React, { Component } from 'react';
+import {
+    FormGroup,
+    Container,
+    Label,
+    Form,
+    Input,
+    Row,
+    Col,
+    ButtonGroup,
+    Button,
+    Card,
+    CardHeader,
+    CardBody,
+    CardFooter
+} from 'reactstrap'
+
+//drop-zone
+import Dropzone from 'react-dropzone'
+import {Link} from 'react-router-dom'
+import dater from 'js-dater'
+//check
+import {
+    checkAge,
+    checkTel
+}from '../../utils'
+//history
+import createHistory from 'history/createBrowserHistory'
+const history = createHistory()
+
+
+//jquery
+const $ = require('jquery')
+const sess = JSON.parse(sessionStorage.getItem('stat'))
+export default class Detail extends Component {
+    constructor(props){
+	super(props)
+	this.state={
+	    update:false,
+	    detail:'',
+	    avatar:null,
+	    preview:'',
+	    modal:false,
+	    sex:'',
+	    region:'',
+	}
+    }	
+    componentWillMount(){
+	this.refresh()
+    }
+    refresh=()=>{
+	const detail = this.props.location.state
+	$.post('http://localhost:3600/simpledb/db?type=find&col=teacher',
+	       {_id:detail._id},(res)=>{
+		   let data  = res[0]
+		   console.log(data)
+		   this.setState({
+		       detail:data,
+		       preview:"http://localhost:3600/teacherAvatar/"+data.avatar,
+		       sex:data.sex,
+		       region:data.region
+		   },()=>{
+		       let lists=['name','age','tel']
+		       for(var i in lists){
+			   $('#'+lists[i])[0].value=data[lists[i]]
+		       }
+		   })
+	       })
+    }
+    updateCard =()=>{
+	let age = $('#age')[0].value
+	let tel = $('#tel')[0].value
+	if(checkAge(age)&&checkTel(tel)){
+	    let data = new FormData($('#form')[0])
+	    let _id = this.state.detail._id
+	    data.append('Avatar',this.state.avatar)
+	    data.append('_id',_id)
+	    $.ajax({
+		type:"POST",
+		url:'http://localhost:3600/simpledb/db?type=update&col=teacher&avatar='+this.state.detail.avatar,
+		data:data,
+		dataType:'JSON',
+		processData:false,
+		contentType:false,
+		success:(res)=>{
+		    alert('更新成功！')
+		    this.refresh()
+		}
+	    })
+	}else if(!checkAge(age)){
+	    alert('请输入正确的年龄')
+	}else if(!checkTel(tel)){
+	    alert('请输入正确的手机号')
+	}else{
+	    alert('更新失败,请核对输入的信息!')
+	}
+    }
+    deleteCard = ()=>{
+	$.post('http://localhost:3600/simpledb/db?type=delete&col=teacher',
+	       {'tel':this.state.detail.tel},(res)=>{
+		   if(res.stat){
+		       alert('删除成功!')
+		       history.goBack()
+		   }
+	       })
+    }
+    renderRegion=()=>{
+	let lists = ['校区一','校区二','校区三','校区四','校区五','校区六']
+	const listItems = lists.map((value,key)=>{
+            return(
+		    <option key={key}>{value}</option>		    
+            )
+	})
+        return 	<Input
+	type="select"
+	name="region"
+	id="region"
+	value={this.state.region}
+	onChange={(e)=>{this.setState({region:e.target.value})}}
+	>{listItems}</Input>
+    }
+    renderInput=(name,holder,defaultValue)=>{
+	return(
+		<FormGroup row>
+		<Label sm={2}>{holder}</Label>
+		<Col sm={10}>
+		<Input
+	    name={name} id={name} type="text" placeholder={holder}
+		/>
+		</Col>
+		</FormGroup>			    
+	)
+    }
+    onDrop=(avatar)=>{
+	this.setState({preview:avatar[0].preview})
+	this.setState({avatar:avatar[0]})
+    }
+    render() {
+	return (
+		<div>
+		<Container className='text-center pb-3 mt-5' >
+		<Card className="mt-2">
+		<CardHeader>教师信息</CardHeader>
+		<hr/>
+		<CardBody>
+		<Form
+	    id="form"
+	    encType='multipart/form-data'
+	    method="post"
+		>		
+		<Row>
+		<Col className="mt-4">
+		<Dropzone
+	    onDrop={this.onDrop}
+	    style={{display:'inline-block'}}
+	    >
+		<img
+	    style={{width:'8rem',height:'8rem'}}
+	    src={this.state.preview}
+	    alt=''
+		/>
+		</Dropzone>
+		</Col>
+		<Col>
+		{this.renderInput('name','姓名')}
+	    {this.renderInput('age','年龄')}
+		<FormGroup row>		
+		<Label sm={2}>性别</Label>
+		<Col sm={10}>
+		<Input type="select" name="sex"
+	    value={this.state.sex}
+	    onChange={(e)=>this.setState({
+		sex:e.target.value
+	    })}
+		>
+		<option >男</option>
+		<option>女</option>
+		</Input>
+		</Col>
+		</FormGroup>				
+		<FormGroup row>		
+		<Label sm={2}>校区</Label>
+		<Col sm={10}>
+		{this.renderRegion()}
+		</Col>
+		</FormGroup>
+		{this.renderInput('tel','电话')}
+		</Col>
+		</Row>	    
+		</Form >	    
+		</CardBody>
+		<CardFooter className="text-right">
+		<ButtonGroup>
+		<Button  onClick={this.updateCard}>更新</Button>
+		<Button  onClick={this.deleteCard}>删除</Button>		
+		<Button onClick={history.goBack}>完成</Button>
+		</ButtonGroup>
+		</CardFooter>
+		</Card>
+		</Container>		
+		</div>
+		
+	);
+    }
+}

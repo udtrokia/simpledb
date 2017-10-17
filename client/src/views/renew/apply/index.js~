@@ -1,0 +1,88 @@
+import React,{Component} from 'react';
+import {
+    Col,
+    Card,
+    Button,
+    CardHeader,
+    CardBody,
+    CardText
+} from 'reactstrap';
+
+import createHistory from 'history/createBrowserHistory'
+const history = createHistory()
+const sess = JSON.parse(sessionStorage.getItem('stat'))
+export default class Example extends Component{
+    componentWillMount(){
+	if(!sessionStorage.getItem('stat')){
+	    history.push('/')
+	    history.go(0)
+	}
+    }
+    checkStudents=()=>{
+	history.push('/regionChoose')
+	history.go()
+    }
+    checkTeachers=()=>{
+	if(sess.dealTeacher){
+	    history.push('/teacherList')
+	    history.go()
+	}else{
+	    alert('未获得此权限')
+	}
+    }
+    auth=()=>{
+	if(sess.dealManager){
+	    history.push('/authority')
+	    history.go()
+	}else{
+	    alert('未获得此权限')
+	}
+    }
+    render(){
+	return (
+		<div>
+		<Col sm='12' className="mt-5 pb-3">
+		<Card>
+		<CardHeader >列表</CardHeader>
+		<CardBody>
+		<CardText>在这里查看学生或教师的列表</CardText>				
+		<Button
+	    className="mr-3"
+	    onClick={()=>{this.checkStudents()}}>学生</Button>
+		<Button
+	    onClick={()=>{this.checkTeachers()}}>教师</Button>
+		</CardBody>	    
+		</Card>
+		</Col>		
+		<Col className="pb-3">
+		<Card >
+		<CardHeader>缴费列表</CardHeader>
+		<CardBody>
+		<CardText>查看缴费申请</CardText>
+		<Button
+	    onClick={()=>{this.auth()}}
+		>进入</Button>
+		</CardBody>		
+		</Card>		
+		</Col>
+		<Col>
+		<Card>
+		<CardHeader>账号权限</CardHeader>
+		<CardBody>
+		<CardText>管理已注册用户的权限</CardText>
+		<Button
+	    onClick={()=>{this.auth()}}
+		>进入</Button>
+		</CardBody>		
+		</Card>		
+		</Col>
+		<Col
+	    className="pt-5"
+		>
+		</Col>
+		</div>
+	)
+    }
+};
+
+

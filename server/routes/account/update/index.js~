@@ -1,0 +1,15 @@
+
+const Account = require('../../db/base').Account
+var express = require('express')
+var router = express.Router();
+var multiparty = require('multiparty')
+var crypto = require('../crypto')
+
+router.post('/',function(req, res, next){
+    let form = new multiparty.Form()
+    form.parse(req,(err,fields,files)=>{
+	Student.update({id:fields.id},fields,{multi:true},(err)=>{})
+    })
+})
+
+module.exports=router

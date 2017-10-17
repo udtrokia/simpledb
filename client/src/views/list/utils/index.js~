@@ -1,0 +1,17 @@
+
+
+
+export const intersection=(raw,arr)=>{
+    let checkSame=(value)=>{  
+	for(var i in arr){
+	    if(arr[i]==value){
+		return value
+            }
+	}
+    }    
+   return raw.filter(checkSame)
+}
+
+
+
+
