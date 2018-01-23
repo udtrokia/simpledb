@@ -9,7 +9,9 @@ import Register from './register'
 import Login from './login'
 
 class Index extends Component {
-
+    constructor(props){
+	super(props)
+    }
     render() {
 	return (
 
